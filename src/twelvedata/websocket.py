@@ -169,23 +169,49 @@ class TDWebSocket:
 
     @staticmethod
     def normalize_symbols(s):
-        return set([el.upper() for el in s])
+        res = set()
+        for el in s:
+            if isinstance(el, tuple):
+                # (SYMBOL, EXCHANGE)
+                res.add((el[0].upper(), el[1].upper()))
+            else:
+                res.add(el.upper())
+        return res
+
 
     @staticmethod
     def subscribe_event(symbols):
+
+        symbols_lst = []
+
+        for el in symbols:
+            if isinstance(el, str):
+                symbols_lst.append({'symbol': el})
+            else:
+                symbols_lst.append({'symbol': el[0], 'exchange': el[1]})
+
         return {
             "action": "subscribe",
             "params": {
-                "symbols": ",".join(list(symbols))
+                "symbols": symbols_lst
             }
         }
 
     @staticmethod
     def unsubscribe_event(symbols):
+
+        symbols_lst = []
+
+        for el in symbols:
+            if isinstance(el, str):
+                symbols_lst += {'symbol': el}
+            else:
+                symbols_lst += {'symbol': el[0], 'exchange': el[1]}
+
         return {
             "action": "unsubscribe",
             "params": {
-                "symbols": ",".join(list(symbols))
+                "symbols": symbols_lst
             }
         }
 
